@@ -4,22 +4,18 @@ import com.conversormonedas.modelo.TasasConversion;
 import com.conversormonedas.servicio.ServicioMoneda;
 import com.conversormonedas.servicio.ServicioMonedaImpl;
 
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
-/**
- * Clase principal para interactuar con el usuario.
- */
 public class Principal {
     public static void main(String[] args) {
         ServicioMoneda servicioMoneda = new ServicioMonedaImpl();
         Scanner scanner = new Scanner(System.in);
 
         try {
-            // Obtener tasas de conversión
             TasasConversion tasas = servicioMoneda.obtenerTasasConversion();
 
             while (true) {
-                // Mostrar menú
                 System.out.println("****************************************");
                 System.out.println("Sea bienvenido/a al Conversor de Moneda =]");
                 System.out.println("****************************************");
@@ -33,17 +29,22 @@ public class Principal {
                 System.out.println("****************************************");
                 System.out.print("Elija una opción válida: ");
 
-                int opcion = scanner.nextInt();
+                int opcion;
+                try {
+                    opcion = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.out.println("Entrada no válida. Debe ingresar un número.");
+                    scanner.next();
+                    continue;
+                }
 
                 if (opcion == 7) {
                     System.out.println("¡Gracias por usar el conversor! ¡Hasta pronto!");
                     break;
                 }
 
-                // Variables para monedas
                 String monedaOrigen = "";
                 String monedaDestino = "";
-                double monto = 0;
 
                 switch (opcion) {
                     case 1 -> {
@@ -76,11 +77,16 @@ public class Principal {
                     }
                 }
 
-                // Capturar el monto a convertir
                 System.out.print("Ingrese el monto a convertir: ");
-                monto = scanner.nextDouble();
+                double monto;
+                try {
+                    monto = scanner.nextDouble();
+                } catch (InputMismatchException e) {
+                    System.out.println("Monto no válido. Debe ingresar un número.");
+                    scanner.next();
+                    continue;
+                }
 
-                // Realizar conversión
                 try {
                     double montoConvertido = servicioMoneda.convertir(monedaOrigen, monedaDestino, monto, tasas);
                     System.out.printf("Resultado: %.2f %s = %.2f %s%n",
@@ -91,6 +97,8 @@ public class Principal {
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
+        } finally {
+            scanner.close();
         }
     }
 }
